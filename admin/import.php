@@ -1,5 +1,7 @@
 <?php
 header('Content-Type: application/json');
+require_once __DIR__ . '/auth-common.php';
+require_admin_auth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
