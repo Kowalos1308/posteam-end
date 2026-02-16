@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styl.css">
+<link rel="stylesheet" href="gracze/gracze.css">
+<link rel="icon" type="image=/png" sizes="32x32" href="logo.png">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    
+    <link rel="shortcut icon" href="logo.png">
+<title>Postteam</title>
+
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<section class="player-page no-player-selected">
+<header>STATYSTYKI GRACZY</header><BR>
+
+    <div class="filters-panel">
+        <div class="filters-layout">
+            <div class="player-avatar-card" id="playerAvatarCard">
+                <img id="playerAvatar" src="gracze/zdjecia/placeholder.svg" alt="Avatar gracza">
+                <div class="player-avatar-meta">
+                    <span>Wybrany gracz</span>
+                    <strong id="playerAvatarName">Wybierz gracza</strong>
+                </div>
+            </div>
+            <div class="filters-fields">
+                <div class="filters-row">
+                    <div class="filter-item">
+                        <label for="playerSelect">Wybór gracza</label>
+                        <select id="playerSelect"></select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="mapSelect">Mapa</label>
+                        <select id="mapSelect"></select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="dateFrom">Data od</label>
+                        <input type="date" id="dateFrom">
+                    </div>
+                    <div class="filter-item">
+                        <label for="dateTo">Data do</label>
+                        <input type="date" id="dateTo">
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <div class="filter-item">
+                        <label>Zakresy szybkie</label>
+                        <div class="quick-ranges">
+                            <button class="quick-range" data-range="30">Ostatnie 30 dni</button>
+                            <button class="quick-range" data-range="prev-month">Poprzedni miesiąc</button>
+                            <button class="quick-range" data-range="prev-year">Poprzedni rok</button>
+                            <button class="quick-range" data-range="current-year">Bieżący rok</button>
+                            <button class="quick-range" data-range="all">Wszystko</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="filters-info" id="filtersInfo">Brak aktywnych filtrów</div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-button active" data-tab="tab-stats">Statystyki</button>
+        <button class="tab-button" data-tab="tab-graphs">Wykresy</button>
+        <button class="tab-button" data-tab="tab-maps">Mapy</button>
+        <button class="tab-button" data-tab="tab-matches">Mecze</button>
+        <button class="tab-button" data-tab="tab-compare">Porównaj</button>
+        <button class="tab-button" data-tab="tab-moments">Najlepsze momenty</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-stats">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="stats-visuals">
+            <article class="graph-card stats-visual-card">
+                <h4>Średnie K/D/A</h4>
+                <canvas id="graphKda"></canvas>
+            </article>
+            <article class="graph-card stats-visual-card">
+                <h4>Rozkład wygranych meczy</h4>
+                <canvas id="graphResults"></canvas>
+                <div id="graphResultsLegend" class="graph-results-legend"></div>
+            </article>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <h3>Ostatnie mecze</h3>
+        <div class="recent-matches" id="recentMatches"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-graphs">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="graphs-grid">
+            <article class="graph-card graph-card-wide">
+                <h4>Ilość meczy w miesiącach</h4>
+                <canvas id="graphMatchesMonthly"></canvas>
+            </article>
+            <article class="graph-card graph-card-wide">
+                <h4>Średnie zabójstwa na miesiąc</h4>
+                <canvas id="graphKillsMonthly"></canvas>
+            </article>
+            <article class="graph-card graph-card-wide">
+                <h4>Średni ADR na miesiąc</h4>
+                <canvas id="graphAdrMonthly"></canvas>
+            </article>
+            <article class="graph-card graph-card-wide">
+                <h4>Porównanie miesięcy (mecze)</h4>
+                <canvas id="graphMatchesYearly"></canvas>
+            </article>
+            <article class="graph-card graph-card-wide">
+                <h4>Porównanie miesięcy (ADR)</h4>
+                <canvas id="graphAdrYearly"></canvas>
+            </article>
+        </div>
+    </div>
+
+    <div class="tab-panel" id="tab-maps">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="maps-grid" id="mapsGrid"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-matches">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="table-wrapper">
+            <table class="matches-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Mapa</th>
+                        <th>Wynik</th>
+                                                <th>K/D/A</th>
+                        <th>ADR</th>
+                        <th>HS%</th>
+                        <th>Rating</th>
+                        <th>3K</th>
+                        <th>4K</th>
+                        <th>5K</th>
+                        <th>1v3</th>
+                        <th>1v4</th>
+                        <th>1v5</th>
+                        <th>Mecz</th>
+                    </tr>
+                </thead>
+                <tbody id="matchesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-panel" id="tab-compare">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="table-wrapper">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Gracz</th>
+                        <th>Mecze</th>
+                        <th>K</th>
+                        <th>D</th>
+                        <th>A</th>
+                        <th>+/-</th>
+                        <th>HS%</th>
+                        <th>ADR</th>
+                        <th>1v5</th>
+                        <th>1v4</th>
+                        <th>1v3</th>
+                        <th>1v2</th>
+                        <th>1v1</th>
+                        <th>5K</th>
+                        <th>4K</th>
+                        <th>3K</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody id="compareTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-panel" id="tab-moments">
+        <div class="tab-empty-state">Wybierz gracza, aby zobaczyć statystyki.</div>
+        <div class="moments-grid" id="momentsGrid"></div>
+    </div>
+</section>
+
+  <footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+</footer>
+<script>
+const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<script src="gracze/przetwarzanie.js"></script>
+<script src="gracze/mapy.js"></script>
+<script src="gracze/porownanie.js"></script>
+<script src="gracze/momenty.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="gracze/app.js"></script>
+</body>
+</html>
+
+
+

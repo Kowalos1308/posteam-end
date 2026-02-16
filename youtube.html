@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postteam YouTube</title>
+<link rel="stylesheet" href="styl.css">
+
+<style>
+.video-list {
+    max-width: 900px;
+    margin: 40px auto 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.video-card {
+    background: #111;
+    border: 2px solid #c40000;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(255,0,0,0.4);
+}
+
+.video-card iframe {
+    width: 100%;
+    height: 500px;
+}
+
+.video-title {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #ff2a2a;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header style="text-align:center; margin-top:30px;">
+    OSTATNIE FILMY POSTTEAM
+</header>
+
+<section class="video-list" id="videoList"></section>
+
+<script>
+const API_KEY = "AIzaSyAof3iwZ243LJfIyE9HeRq2sEFxZOWSdIg";
+const PLAYLIST_ID = "UUUKTbDAYSSUQzyAQWhFC23Q";
+
+async function loadVideos() {
+    const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=${PLAYLIST_ID}&key=${API_KEY}`
+    );
+    const data = await res.json();
+
+    const container = document.getElementById("videoList");
+
+    data.items.forEach(item => {
+        const videoId = item.snippet.resourceId.videoId;
+        const title = item.snippet.title;
+
+        const card = document.createElement("div");
+        card.className = "video-card";
+
+        card.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+            <div class="video-title">${title}</div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+loadVideos();
+const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+</footer>
+</body>
+</html>

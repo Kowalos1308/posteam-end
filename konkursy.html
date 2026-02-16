@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konkursy Postteam</title>
+    <link rel="stylesheet" href="styl.css">
+    <style>
+        html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+        .container {
+    flex: 1 0 auto; /* Wypycha stopkę */
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 300px; /* Układ PC */
+    gap: 30px;
+}
+        header { text-align: center; padding: 40px 10px; color: #ff0000; font-size: 38px; font-weight: 900; text-transform: uppercase; }
+
+        /* Panel Admina */
+        #adminPanel { display: none; background: #111; padding: 25px; border: 2px solid #ff0000; border-radius: 8px; margin-bottom: 40px; grid-column: 1 / -1; }
+        #adminPanel input, #adminPanel textarea { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 12px; margin: 10px 0; border-radius: 4px; box-sizing: border-box; }
+        #adminPanel button { background: #ff0000; color: #fff; border: none; padding: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; }
+
+        /* Karty Konkursów */
+        .contest-item { 
+            background: #111; border-left: 5px solid #ff0000; padding: 25px; 
+            margin-bottom: 25px; border-radius: 0 8px 8px 0; cursor: pointer;
+            position: relative; transition: transform 0.2s;
+        }
+        .contest-item:hover { transform: scale(1.01); }
+        .contest-item.finished { border-left-color: #444; opacity: 0.8; }
+
+        .contest-title { color: #ff0000; font-size: 24px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .section-content { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; color: #ccc; margin-bottom: 15px; }
+        
+        .date-range { color: #bbb; font-size: 13px; font-weight: bold; }
+        .read-more { position: absolute; bottom: 15px; right: 20px; color: #ff0000; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+
+        /* Nagrody i Wyniki w Modalu */
+        .prizes-list { list-style: none; padding: 0; margin: 10px 0; }
+        .prizes-list li { position: relative; padding-left: 20px; margin-bottom: 5px; color: #ffcc00; font-weight: bold; font-size: 16px; }
+        .prizes-list li::before { content: "•"; color: #ff0000; position: absolute; left: 0; font-size: 20px; line-height: 1; }
+
+        .results-box { margin-top: 25px; padding: 20px; background: rgba(255, 204, 0, 0.05); border: 2px solid #ffcc00; border-radius: 8px; }
+        .results-title { color: #ffcc00; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .results-text { color: #eee; line-height: 1.6; white-space: pre-wrap; }
+
+        .timer-badge { padding: 5px 10px; border-radius: 3px; font-weight: bold; font-size: 11px; text-transform: uppercase; display: inline-block; }
+        .timer-green { background: rgba(0, 255, 0, 0.1); color: #00ff00; }
+        .timer-red { background: rgba(255, 0, 0, 0.1); color: #ff0000; animation: pulse 1s infinite; }
+        .timer-gray { background: #333; color: #888; }
+
+        /* Kolory graczy */
+        .matka { color: #00ff00; } .ojciec { color: #0909ff; } .dziadek { color: #ff8800; }
+        .synek { color: #a020f0; } .kowal { color: #00d9ff; } .wujek { color: #ffff00; } .gruby { color: #ff0000; }
+
+        /* Modal */
+        .modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    backdrop-filter: blur(5px);
+    overflow-y: auto; /* Pozwala przewijać całą stronę gdy modal jest otwarty */
+}
+       .modal-inner {
+    background-color: #111;
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid #ff0000;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+}
+        .close-modal { position: absolute; top: 15px; right: 20px; color: #ff0000; font-size: 40px; cursor: pointer; }
+        .edit-input { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; margin: 5px 0; font-family: inherit; }
+        
+        .winner-box-big { margin-top: 30px; padding: 25px; border: 3px dashed #ff0000; text-align: center; background: rgba(255, 0, 0, 0.05); }
+
+        /* Ranking Side Panel */
+        .ranking-panel { background: #111; padding: 20px; border-radius: 8px; border: 1px solid #222; height: fit-content; }
+        .ranking-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+       @media (max-width: 768px) {
+    .container {
+        display: block !important;         /* Wyłączamy Grid, przechodzimy na blokowy układ */
+        padding: 10px !important;
+        margin: 10px auto !important;
+    }
+
+    /* Ranking - wymuszamy wyświetlanie na górze */
+    .ranking-sidebar {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 30px !important;    /* Odstęp od konkursów */
+        position: relative !important;
+    }
+
+    /* Lista konkursów - pojawi się naturalnie pod rankingiem */
+    .contests-list {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Dopasowanie tabeli w rankingu, żeby nie wystawała */
+    .ranking-sidebar table {
+        width: 100% !important;
+        font-size: 14px;
+    }
+
+    header {
+        font-size: 26px !important;
+        padding: 20px 5px !important;
+    }
+    
+}
+@media (max-width: 768px) {
+    .modal-inner {
+        margin: 10% auto;
+        padding: 20px;
+        width: 95%; /* Maksymalne wykorzystanie szerokości telefonu */
+    }
+
+    #modalContent h2 {
+        font-size: 22px;
+        margin-bottom: 15px;
+    }
+
+    #modalContent p {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .close-modal {
+        font-size: 35px;
+        right: 15px;
+        top: 10px;
+    }
+}
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header>KONKURSY POSTTEAM 🏆</header>
+
+<div class="container">
+    <div id="adminPanel">
+        <h3 style="color: #ff0000; margin: 0 0 20px 0;">PANEL MATKI</h3>
+        <input type="text" id="cTitle" placeholder="Nazwa konkursu...">
+        <textarea id="cRules" rows="3" placeholder="Zasady..."></textarea>
+        <textarea id="cPrizes" rows="3" placeholder="Nagrody (każda w nowej linii)..."></textarea>
+        <textarea id="cResults" rows="2" placeholder="Wyniki (zostaw puste, dopóki trwa)..."></textarea>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex:1"><label style="font-size:11px; color:#888;">START:</label><input type="date" id="cStart"></div>
+            <div style="flex:1"><label style="font-size:11px; color:#888;">KONIEC:</label><input type="date" id="cEnd"></div>
+        </div>
+        <button id="addContestBtn">DODAJ KONKURS</button>
+    </div>
+
+    <div id="contestsList"></div>
+
+    <aside class="ranking-panel">
+        <div style="color:#ff0000; font-weight:bold; text-align:center; margin-bottom:15px; text-transform: uppercase;">Top Zwycięzcy</div>
+        <div id="rankingContent"></div>
+        <div id="adminRanking" style="display:none; margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
+            <select id="playerSelect" style="width:100%; background:#222; color:#fff; padding:10px; border:1px solid #444;">
+                <option value="matka">Matka</option><option value="ojciec">Ojciec</option><option value="dziadek">Dziadek</option>
+                <option value="synek">Synek</option><option value="kowal">Kowal</option><option value="wujek">Wujek</option><option value="gruby">Gruby</option>
+            </select>
+            <div style="display: flex; gap: 5px; margin-top: 10px;">
+                <button onclick="window.updateRank(1)" style="flex: 2; background:#ff0000; color:#fff; border:none; padding:10px; cursor:pointer; font-weight:bold;">+1 PKT</button>
+                <button onclick="window.updateRank(-1)" style="flex: 1; background:#333; color:#ff4444; border:1px solid #444; padding:10px; cursor:pointer; font-weight:bold;">-1</button>
+            </div>
+        </div>
+        
+    </aside>
+    
+</div>
+
+<div id="contestModal" class="modal" onclick="window.closeContest()">
+    <div class="modal-inner" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="window.closeContest()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+        authDomain: "postteam-bc270.firebaseapp.com",
+        projectId: "postteam-bc270",
+        storageBucket: "postteam-bc270.firebasestorage.app",
+        messagingSenderId: "119497986039",
+        appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let isAdmin = false;
+    const playerNames = { matka: "Matka", ojciec: "Ojciec", dziadek: "Dziadek", synek: "Synek", kowal: "Kowal", wujek: "Wujek", gruby: "Gruby" };
+
+    onAuthStateChanged(auth, user => {
+        if (user && user.email === "matka@postteam.pl") {
+            isAdmin = true;
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminRanking').style.display = 'block';
+        }
+    });
+
+    const formatPrizes = (text) => {
+        if (!text) return "";
+        const items = text.split('\n').filter(line => line.trim() !== "");
+        return `<ul class="prizes-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+    };
+
+    document.getElementById('addContestBtn').onclick = async () => {
+        const title = document.getElementById('cTitle').value;
+        const rules = document.getElementById('cRules').value;
+        const prizes = document.getElementById('cPrizes').value;
+        const results = document.getElementById('cResults').value;
+        const start = document.getElementById('cStart').value;
+        const end = document.getElementById('cEnd').value;
+        if (title && end) {
+            await addDoc(collection(db, "contests"), { title, rules, prizes, results, start, end, winner: "", status: "active", createdAt: Date.now() });
+            location.reload();
+        }
+    };
+
+    onSnapshot(query(collection(db, "contests"), orderBy("createdAt", "desc")), (snap) => {
+        const list = document.getElementById('contestsList');
+        list.innerHTML = '';
+        snap.forEach(d => {
+            const data = d.data();
+            const id = d.id;
+            const daysLeft = Math.ceil((new Date(data.end) - new Date()) / (1000 * 60 * 60 * 24));
+            const isFinished = daysLeft < 0 || data.status === "finished";
+
+            const div = document.createElement('div');
+            div.className = `contest-item ${isFinished ? 'finished' : ''}`;
+            div.onclick = () => window.openContest(data, id, daysLeft);
+            
+            div.innerHTML = `
+                <div class="contest-title">${data.title}</div>
+                <div class="section-content">${data.rules}</div>
+                
+                ${data.winner ? `
+                    <div style="font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 15px 0 10px 0;">
+                        <span style="color: #888; font-size: 14px;">${isFinished ? 'WYGRAŁ:' : 'AKTUALNY ZWYCIĘZCA:'}</span> 
+                        <span class="${data.winner}" style="text-shadow: 0 0 10px currentColor; margin-left: 5px;">${playerNames[data.winner]}</span>
+                    </div>
+                ` : ''}
+
+                <div style="margin-bottom: 8px;">
+                    <span style="color: #888; font-size: 12px; font-weight: bold; text-transform: uppercase;">Czas trwania:</span>
+                    <span class="date-range" style="margin-left: 5px;">${data.start} — ${data.end}</span>
+                </div>
+
+                <div class="status-line">
+                    <span class="timer-badge ${isFinished ? 'timer-gray' : (daysLeft < 7 ? 'timer-red' : 'timer-green')}">
+                        ${isFinished ? 'ZAKOŃCZONY' : 'POZOSTAŁO DNI DO KOŃCA: ' + daysLeft}
+                    </span>
+                </div>
+
+                <div class="read-more">Czytaj więcej →</div>
+            `;
+            list.appendChild(div);
+        });
+    });
+
+    window.openContest = (data, id, daysLeft) => {
+        const modal = document.getElementById('contestModal');
+        const content = document.getElementById('modalContent');
+        const isFinished = daysLeft < 0 || data.status === "finished";
+
+        const renderNormal = () => {
+            content.innerHTML = `
+                <h2 style="color:#ff0000; text-transform:uppercase; margin-bottom:5px;">${data.title}</h2>
+                <p style="color:#888; font-size:13px; font-weight:bold;">📅 ${data.start} — ${data.end}</p>
+                
+                <div style="margin:20px 0; border-top:1px solid #333; padding-top:20px;">
+                    <p style="color:#ff0000; font-size:11px; font-weight:bold; text-transform:uppercase;">Zasady:</p>
+                    <div style="white-space:pre-wrap; line-height:1.7; color:#ccc;">${data.rules}</div>
+                </div>
+
+                <div style="margin:20px 0;">
+                    <p style="color:#ffcc00; font-size:11px; font-weight:bold; text-transform:uppercase;">Nagrody:</p>
+                    ${formatPrizes(data.prizes)}
+                </div>
+
+                ${data.results ? `
+                    <div class="results-box">
+                        <span class="results-title">🏆 OFICJALNE WYNIKI:</span>
+                        <div class="results-text">${data.results}</div>
+                    </div>
+                ` : ''}
+
+                ${data.winner ? `
+                    <div class="winner-box-big">
+                        <p style="color:#fff; font-size:14px; text-transform:uppercase; font-weight:bold; margin-bottom:5px;">
+                            ${isFinished ? '🏆 OFICJALNY ZWYCIĘZCA 🏆' : '🔥 AKTUALNY ZWYCIĘZCA / LIDER 🔥'}
+                        </p>
+                        <div class="${data.winner}" style="font-size: 48px; font-weight: 900; text-transform: uppercase; text-shadow: 0 0 15px currentColor;">
+                            ${playerNames[data.winner]}
+                        </div>
+                    </div>
+                ` : ''}
+
+                ${isAdmin ? `
+                    <div style="margin-top:30px; border-top:1px solid #333; padding-top:20px; display:flex; flex-direction:column; gap:10px;">
+                        <button onclick="window.startEdit('${id}')" style="background:#444; color:#fff; border:none; padding:12px; cursor:pointer; font-weight:bold; text-transform:uppercase;">✏️ Edytuj treść i wyniki</button>
+                        <select onchange="window.setWinner('${id}', this.value)" style="width:100%; padding:12px; background:#222; color:#fff; border:1px solid #444;">
+                            <option value="">Wybierz zwycięzcę...</option>
+                            ${Object.keys(playerNames).map(p => `<option value="${p}" ${data.winner === p ? 'selected' : ''}>${playerNames[p]}</option>`).join('')}
+                        </select>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="window.toggleStatus('${id}', '${data.status}')" style="flex:1; padding:12px; background:#222; color:#fff; border:1px solid #444; cursor:pointer;">${data.status === 'active' ? 'Zakończ konkurs' : 'Przywróć konkurs'}</button>
+                            <button onclick="window.deleteContest('${id}')" style="flex:1; padding:12px; border:1px solid red; color:red; background:none; cursor:pointer;">Usuń</button>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        };
+
+        window.startEdit = async (contestId) => {
+            const d = (await getDoc(doc(db, "contests", contestId))).data();
+            content.innerHTML = `
+                <h3 style="color:#ff0000; text-transform:uppercase;">Tryb Edycji</h3>
+                <label style="font-size:11px; color:#888;">TYTUŁ:</label><input type="text" id="editTitle" class="edit-input" value="${d.title}">
+                <label style="font-size:11px; color:#888;">ZASADY:</label><textarea id="editRules" class="edit-input" rows="5">${d.rules}</textarea>
+                <label style="font-size:11px; color:#888;">NAGRODY:</label><textarea id="editPrizes" class="edit-input" rows="3">${d.prizes}</textarea>
+                <label style="font-size:11px; color:#ffcc00; font-weight:bold;">WYNIKI (widoczne tylko w modalu):</label>
+                <textarea id="editResults" class="edit-input" rows="3">${d.results || ""}</textarea>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1"><label style="font-size:11px; color:#888;">START:</label><input type="date" id="editStart" class="edit-input" value="${d.start}"></div>
+                    <div style="flex:1"><label style="font-size:11px; color:#888;">KONIEC:</label><input type="date" id="editEnd" class="edit-input" value="${d.end}"></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button onclick="window.saveEdit('${contestId}')" style="flex:1; background:green; color:white; border:none; padding:15px; cursor:pointer; font-weight:bold;">ZAPISZ ZMIANY</button>
+                    <button onclick="window.closeContest()" style="flex:1; background:#333; color:white; border:none; padding:15px; cursor:pointer;">ANULUJ</button>
+                </div>
+            `;
+        };
+
+        window.saveEdit = async (contestId) => {
+            await updateDoc(doc(db, "contests", contestId), { 
+                title: document.getElementById('editTitle').value, 
+                rules: document.getElementById('editRules').value, 
+                prizes: document.getElementById('editPrizes').value,
+                results: document.getElementById('editResults').value,
+                start: document.getElementById('editStart').value, 
+                end: document.getElementById('editEnd').value 
+            });
+            window.closeContest();
+        };
+
+        renderNormal();
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeContest = () => { document.getElementById('contestModal').style.display = 'none'; document.body.style.overflow = 'auto'; };
+    window.setWinner = async (id, val) => await updateDoc(doc(db, "contests", id), { winner: val });
+    window.toggleStatus = async (id, curr) => await updateDoc(doc(db, "contests", id), { status: curr === 'active' ? 'finished' : 'active' });
+    window.deleteContest = async (id) => { if(confirm("Usunąć ten konkurs?")) { await deleteDoc(doc(db, "contests", id)); window.closeContest(); } };
+
+    window.updateRank = async (val) => {
+        const player = document.getElementById('playerSelect').value;
+        const ref = doc(db, "ranking", player);
+        const docSnap = await getDoc(ref);
+        let current = docSnap.exists() ? (docSnap.data().count || 0) : 0;
+        await setDoc(ref, { count: Math.max(0, current + val), name: player }, { merge: true });
+    };
+
+    onSnapshot(collection(db, "ranking"), (snap) => {
+        const container = document.getElementById('rankingContent');
+        let players = [];
+        snap.forEach(d => players.push(d.data()));
+        players.sort((a, b) => (b.count || 0) - (a.count || 0));
+        container.innerHTML = players.map(p => `
+            <div class="ranking-item">
+                <span class="${p.name}" style="font-weight:bold;">${playerNames[p.name]}</span>
+                <span style="color:#ff0000; font-weight:bold;">${p.count || 0} 🏆</span>
+            </div>
+        `).join('');
+    });
+    const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+    
+</footer>
+</body>
+</html>

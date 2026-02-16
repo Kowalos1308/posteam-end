@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styl.css">
+<link rel="stylesheet" href="admin/admin.css">
+
+<title>Postteam - Admin</title>
+
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPOL</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">Grafik Postteam</a>
+                <a href="wskaznik.html">Wskaźnik kutasa</a>
+                <a href="kalendarz.html">Kalendarz Postteam</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="about">
+    <h2>POSTTEAM</h2>
+    <p>Panel administracyjny do zarządzania importem danych meczowych.</p>
+    <p>Dostęp tylko dla uprawnionych osób.</p>
+</div>
+
+<section class="admin-page">
+    <header class="admin-hero">
+        <h1>Panel administratora</h1>
+        <p>Proste logowanie i import danych statystycznych.</p>
+    </header>
+
+    <div class="admin-card">
+        <h2>Logowanie</h2>
+        <form class="admin-form" id="adminLoginForm">
+            <input type="text" id="adminUser" placeholder="Login" required>
+            <input type="password" id="adminPass" placeholder="Hasło" required>
+            <button type="submit">Zaloguj</button>
+        </form>
+        <div class="status-message" id="loginStatus">Wprowadź dane logowania.</div>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-card">
+            <h2>Gracze Statystyki</h2>
+            <p class="notice">Importuj dane z arkusza XLSX (zakładka „Mecze z PostTeam”).</p>
+            <div class="import-row">
+                <input type="file" id="xlsxInput" accept=".xlsx">
+                <button type="button" id="importButton">Importuj dane</button>
+            </div>
+            <div class="status-message" id="importStatus">Brak nowych importów.</div>
+        </div>
+
+
+
+        <div class="admin-card" id="excludedMatchesCard">
+            <h2>Wykluczone mecze</h2>
+            <p class="notice">Podaj ID meczu. Wykluczone mecze nie będą brane pod uwagę w Najlepszych momentach (gracze) i rekordach (zespół).</p>
+            <div class="import-row">
+                <input type="text" id="excludedMatchIdInput" placeholder="ID meczu (np. 392835082)">
+                <button type="button" id="addExcludedMatchButton">Dodaj</button>
+            </div>
+            <div class="status-message" id="excludedMatchStatus">Brak wykluczonych meczów.</div>
+            <div id="excludedMatchesList" class="excluded-matches-list"></div>
+        </div>
+
+        <div class="admin-card">
+            <h2>Dodaj mecz (JSON)</h2>
+            <p class="notice">Wklej tablicę JSON (rekordy jednego meczu). Jeśli ID meczu już istnieje, nic nie zostanie dodane.</p>
+            <textarea id="adminMatchJson" class="admin-textarea" placeholder='Wklej tutaj dane JSON...'></textarea>
+            <div class="import-row">
+                <button type="button" id="addMatchButton">Dodaj mecz</button>
+            </div>
+            <div class="status-message" id="addMatchStatus">Brak nowych importów meczów.</div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p>Amatorska drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="LINK_DO_YOUTUBE" target="_blank">
+                <img src="IKONA_YOUTUBE" alt="YouTube">
+            </a>
+            <a href="LINK_DO_INSTAGRAMA" target="_blank">
+                <img src="IKONA_INSTAGRAM" alt="Instagram">
+            </a>
+            <a href="LINK_DO_TIKTOKA" target="_blank">
+                <img src="IKONA_TIKTOK" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 Postteam. All rights reserved.
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="admin/admin.js"></script>
+<script>
+const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+</body>
+</html>

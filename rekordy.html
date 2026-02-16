@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekordy Postteam</title>
+    <link rel="stylesheet" href="styl.css">
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; }
+        
+        header {
+            text-align: center; padding: 40px 10px 20px; color: #ff0000;
+            font-size: 38px; font-weight: 900; text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        .records-container {
+            max-width: 900px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .record-card {
+            background: #111;
+            border: 1px solid #222;
+            border-left: 4px solid #ff0000;
+            padding: 20px;
+            border-radius: 4px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .record-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff0000;
+            background: #161616;
+        }
+
+        .record-label {
+            color: #888;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .record-value {
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .record-holder {
+            color: #ff0000;
+            font-weight: 900;
+        }
+
+        /* Sekcja wyróżniona dla serii i lat */
+        .full-width {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            border-top: 2px solid #222;
+            padding-top: 40px;
+        }
+
+        .stat-box {
+            text-align: center;
+            background: linear-gradient(180deg, #111 0%, #000 100%);
+            padding: 30px;
+            border: 1px solid #222;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 48px;
+            color: #ff0000;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .stat-desc {
+            font-size: 14px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .matka { color: #00ff00; font-weight: 900; }     /* zielony */
+        .ojciec { color: #3131ff; font-weight: 900; }    /* niebieski */
+        .dziadek { color: #ff8800; font-weight: 900; }   /* pomarańczowy */
+        .synek { color: #a020f0; font-weight: 900; }     /* fioletowy */
+        .kowal { color: #00d9ff; font-weight: 900; }     /* jasnoniebieski */
+        .wujek { color: #ffff00; font-weight: 900; }     /* żółty */
+        .gruby { color: #ff0000; font-weight: 900; }
+        .section-title { 
+            text-align: center; color: #fff; letter-spacing: 5px; 
+            margin: 60px 0 30px; text-transform: uppercase; font-size: 20px;
+            opacity: 0.8;
+        }
+
+        /* 2. NOWOCZESNE KARTY */
+        .records-container { 
+            max-width: 1200px; margin: 0 auto 60px; padding: 0 20px; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; 
+        }
+
+        .record-card { 
+            background: rgba(20, 20, 20, 0.8); 
+            backdrop-filter: blur(10px); /* Efekt rozmytego szkła */
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 30px; 
+            text-align: center; 
+            border-left: 6px solid #333; 
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* EFEKT PO NAJECHANIU */
+        .record-card:hover { 
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(30, 30, 30, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .edit-value { 
+            font-size: 60px; font-weight: 900; display: block; margin: 15px 0; 
+            color: #fff; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .edit-title { 
+            font-size: 14px; color: #aaa; text-transform: uppercase; 
+            margin: 0; letter-spacing: 2px; font-weight: 600;
+        }
+
+        .edit-name { font-weight: bold; text-transform: uppercase; font-size: 18px; }
+        
+        /* PANEL ADMINA - STYLOWY */
+        #adminPanel { 
+            position: sticky; top: 0; z-index: 1000; padding: 20px; 
+            background: rgba(0,0,0,0.9); border-bottom: 2px solid #ff0000; 
+            display: none; text-align: center;
+        }
+
+        .editable-active { 
+            outline: 2px solid #ff0000 !important; 
+            background: rgba(255,0,0,0.1) !important; 
+            box-shadow: 0 0 15px rgba(255,0,0,0.3);
+        }
+
+        button { 
+            cursor: pointer; font-weight: bold; padding: 12px 30px; 
+            border-radius: 2px; border: none; text-transform: uppercase; 
+            transition: 0.3s; letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header>REKORDY POSTTEAM 🏆</header>
+<div id="adminPanel">
+    <div style="text-align: center;">
+        <p style="color: #00ff00; margin-bottom: 10px;">PANEL MATKI AKTYWNY</p>
+        <button id="editBtn" onclick="toggleEditMode()" style="background: #444; color: white;">TRYB EDYCJI</button>
+        <button id="saveBtn" onclick="saveToFirebase()" style="background: #c40000; color: white; display: none; margin-left: 10px;">ZAPISZ ZMIANY W FIRESTORE</button>
+    </div>
+</div>
+
+<h2 class="section-title">Rekordy Drużynowe</h2>
+<div class="records-container" id="team-section">
+    <div class="record-card" data-idx="0"><h3 class="edit-title">REKORD 1</h3><span class="edit-value">0</span><span class="edit-name" style="display:none"></span></div>
+    <div class="record-card" data-idx="1"><h3 class="edit-title">REKORD 2</h3><span class="edit-value">0</span><span class="edit-name" style="display:none"></span></div>
+    <div class="record-card" data-idx="2"><h3 class="edit-title">REKORD 3</h3><span class="edit-value">0</span><span class="edit-name" style="display:none"></span></div>
+    <div class="record-card" data-idx="3"><h3 class="edit-title">REKORD 4</h3><span class="edit-value">0</span><span class="edit-name" style="display:none"></span></div>
+</div>
+
+<h2 class="section-title">Rekordy Indywidualne</h2>
+<div class="records-container" id="player-section">
+    <div class="record-card" data-idx="4"><h3 class="edit-title">REKORD 5</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="5"><h3 class="edit-title">REKORD 6</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="6"><h3 class="edit-title">REKORD 7</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="7"><h3 class="edit-title">REKORD 8</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="8"><h3 class="edit-title">REKORD 9</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="9"><h3 class="edit-title">REKORD 10</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="10"><h3 class="edit-title">REKORD 11</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="11"><h3 class="edit-title">REKORD 12</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    <div class="record-card" data-idx="12"><h3 class="edit-title">REKORD 13</h3><span class="edit-value">0</span><div>GRACZ: <span class="edit-name">BRAK</span></div></div>
+    
+</div>
+
+</div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+        authDomain: "postteam-bc270.firebaseapp.com",
+        projectId: "postteam-bc270",
+        storageBucket: "postteam-bc270.firebasestorage.app",
+        messagingSenderId: "119497986039",
+        appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const ADMIN_EMAIL = "matka@postteam.pl";
+
+    const playerColors = { 
+        "matka": "#00ff00", "ojciec": "#0000ff", "wujek": "#ffff00", 
+        "dziadek": "#ff8000", "kowal": "#00dfff", "synek": "#bf00ff" 
+    };
+
+    let isEditMode = false;
+
+    // Funkcja aktualizująca wygląd karty (pasek z lewej)
+    function updateCardStyle(card, name, index) {
+        const nameKey = (name || "").toLowerCase().trim();
+        const color = playerColors[nameKey] || "#333";
+        
+        // Dla rekordów drużynowych (0-3) zawsze czerwony, dla reszty kolor gracza
+        if (index < 4) {
+            card.style.borderLeft = "6px solid #ff0000";
+        } else {
+            card.style.borderLeft = `6px solid ${color}`;
+            const nameEl = card.querySelector('.edit-name');
+            if (nameEl) nameEl.style.color = color;
+        }
+    }
+
+    // POBIERANIE DANYCH
+    onSnapshot(doc(db, "rekordy", "data"), (snapshot) => {
+        if (snapshot.exists() && !isEditMode) {
+            const list = snapshot.data().list;
+            list.forEach((item, index) => {
+                const card = document.querySelector(`.record-card[data-idx="${index}"]`);
+                if (card) {
+                    card.querySelector('.edit-title').innerText = item.title || "";
+                    card.querySelector('.edit-value').innerText = item.value || "0";
+                    const nameEl = card.querySelector('.edit-name');
+                    if (nameEl) nameEl.innerText = item.name || "";
+                    
+                    updateCardStyle(card, item.name, index);
+                }
+            });
+        }
+    });
+
+    // ZAPIS DANYCH
+    window.saveToFirebase = async function() {
+        const cards = document.querySelectorAll('.record-card');
+        const listToSave = [];
+        
+        cards.forEach((card, index) => {
+            const nameEl = card.querySelector('.edit-name');
+            const nameValue = nameEl ? nameEl.innerText.trim() : "";
+            listToSave.push({
+                title: card.querySelector('.edit-title').innerText.trim(),
+                value: card.querySelector('.edit-value').innerText.trim(),
+                name: nameValue
+            });
+            updateCardStyle(card, nameValue, index);
+        });
+
+        try {
+            await setDoc(doc(db, "rekordy", "data"), { list: listToSave });
+            alert("Zapisano i podświetlono!");
+            window.toggleEditMode();
+        } catch (e) {
+            alert("Błąd: " + e.message);
+        }
+    };
+
+    window.toggleEditMode = function() {
+        isEditMode = !isEditMode;
+        document.getElementById('editBtn').innerText = isEditMode ? "WYJDŹ" : "TRYB EDYCJI";
+        document.getElementById('saveBtn').style.display = isEditMode ? "inline-block" : "none";
+        document.querySelectorAll('.edit-title, .edit-value, .edit-name').forEach(el => {
+            el.contentEditable = isEditMode;
+            el.classList.toggle('editable-active', isEditMode);
+        });
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+    });
+
+    const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Amatorska drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+    
+</footer>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wskaźnik Kutasa - Postteam</title>
+    <link rel="stylesheet" href="styl.css">
+    <style>
+        /* Styl dla przycisku czyszczenia */
+        .admin-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+        #resetBtn {
+            background: #cc0000;
+            color: white;
+            border: 2px solid #ff0000;
+            padding: 10px 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+        }
+        #resetBtn:hover {
+            background: #ff0000;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+            transform: scale(1.05);
+        }
+     
+
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <header>WSKAŹNIK KUTASA 🌵</header>
+<div class="indicator-scroll-container">
+    <div class="indicator-wrapper" id="indicator">
+        </div>
+</div>
+    <main>
+        <div class="mobile-scroll-wrapper">
+        <div class="wskaznik-container">
+            <div class="wsk-sidebar">
+                <table class="legend-table">
+                    <tr><td class="wsk-purple-border">KAWAŁ CHUJA</td></tr>
+                    <tr><td class="wsk-green-border">13–15 MECZÓW</td></tr>
+                    <tr><td class="wsk-yellow-border">8–12 MECZÓW</td></tr>
+                    <tr><td class="wsk-red-border">0–7 MECZÓW</td></tr>
+                </table>
+
+                <div class="wsk-counters-wrapper">
+                    <div class="wsk-counters">
+                        <div class="counter-item">Z<div class="count-box wsk-green-border" id="countZ">0</div></div>
+                        <div class="counter-item">P<div class="count-box wsk-red-border" id="countP">0</div></div>
+                        <div class="counter-item">R<div class="count-box wsk-yellow-border" id="countR">0</div></div>
+                    </div>
+                </div>
+
+                <div class="wsk-stats">
+                    <span class="winrate-main" id="winrate">0%</span>
+                    <div class="stat-line"><span>Seria zwycięstw:</span><span class="stat-value" id="winStreak">0</span></div>
+                    <div class="stat-record">Rekord: 7</div>
+                    <div class="stat-line"><span>Seria bez porażki:</span><span class="stat-value" id="noLoseStreak">0</span></div>
+                    <div class="stat-record">Rekord: 10</div>
+                </div>
+            </div>
+
+            <div id="meter" class="meter"></div>
+
+            <div id="table" class="results-table"></div>
+        </div>
+
+        <div class="admin-controls">
+            <button id="resetBtn" style="display:none;">Wyczyść Wskaźnik</button>
+        </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p>Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+
+    
+</footer>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+  authDomain: "postteam-bc270.firebaseapp.com",
+  projectId: "postteam-bc270",
+  storageBucket: "postteam-bc270.firebasestorage.app",
+  messagingSenderId: "119497986039",
+  appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let results = new Array(30).fill(null);
+let currentUser = null;
+const adminEmail = "matka@postteam.pl";
+
+const meter = document.getElementById("meter");
+const table = document.getElementById("table");
+const resetBtn = document.getElementById("resetBtn");
+
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    if (start === end) {
+        obj.innerHTML = end + "%";
+        return;
+    }
+    obj.classList.add('winrate-animate');
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const current = Math.floor(progress * (end - start) + start);
+        obj.innerHTML = current + "%";
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            setTimeout(() => obj.classList.remove('winrate-animate'), 200);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+function buildMeter() {
+    meter.innerHTML = "";
+    for(let i=0; i<15; i++){
+        const lvl = document.createElement("div");
+        lvl.className = "level";
+        if(i < 4) lvl.classList.add("wide");
+        meter.appendChild(lvl);
+    }
+}
+
+function buildTable() {
+    table.innerHTML = "";
+    for(let row=0; row<15; row++){
+        for(let col=0; col<2; col++){
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            const index = col === 0 ? row : row + 15;
+            cell.dataset.index = index;
+            const num = col === 0 ? (15 - row) : (30 - row);
+            cell.setAttribute('data-num', num);
+            cell.onclick = () => handleCellClick(index);
+            table.appendChild(cell);
+        }
+    }
+}
+
+async function handleCellClick(index) {
+    if (!currentUser || currentUser.email !== adminEmail) return;
+    const states = [null, "Z", "P", "R"];
+    const currentIndex = states.indexOf(results[index]);
+    results[index] = states[(currentIndex + 1) % states.length];
+    await setDoc(doc(db, "wskaznik", "global_state"), {
+        results: results,
+        lastUpdated: new Date().toISOString()
+    });
+}
+
+// FUNKCJA CZYSZCZENIA
+resetBtn.onclick = async () => {
+    if (!currentUser || currentUser.email !== adminEmail) return;
+    if (confirm("UWAGA: Czy na pewno chcesz wyczyścić cały wskaźnik?")) {
+        const emptyResults = new Array(30).fill(null);
+        await setDoc(doc(db, "wskaznik", "global_state"), {
+            results: emptyResults,
+            lastUpdated: new Date().toISOString()
+        });
+    }
+};
+
+function render() {
+    const played = [];
+    for (let i = 14; i >= 0; i--) if (results[i]) played.push(results[i]);
+    for (let i = 29; i >= 15; i--) if (results[i]) played.push(results[i]);
+
+    document.getElementById("countZ").textContent = played.filter(r => r === "Z").length;
+    document.getElementById("countP").textContent = played.filter(r => r === "P").length;
+    document.getElementById("countR").textContent = played.filter(r => r === "R").length;
+
+    const oldWinrate = parseInt(document.getElementById("winrate").textContent) || 0;
+    const z = played.filter(r => r === "Z").length;
+    const totalWL = z + played.filter(r => r === "P").length;
+    const newWinrate = totalWL === 0 ? 0 : Math.round((z / totalWL) * 100);
+    animateValue("winrate", oldWinrate, newWinrate, 800);
+    const winrateDisplay = document.getElementById("winrate");
+
+if (newWinrate <= 30) {
+    winrateDisplay.style.color = "#ff5555"; // Czerwony
+} else if (newWinrate > 30 && newWinrate < 50) {
+    winrateDisplay.style.color = "#ffff66"; // Żółty
+} else {
+    winrateDisplay.style.color = "#55ff55"; // Zielony
+}
+
+    let winS = 0; let noLS = 0;
+    for (let i = played.length - 1; i >= 0; i--) {
+        if (played[i] === "Z") winS++; else break;
+    }
+    for (let i = played.length - 1; i >= 0; i--) {
+        if (played[i] === "Z" || played[i] === "R") noLS++; 
+        else if (played[i] === "P") break;
+    }
+    document.getElementById("winStreak").textContent = winS;
+    document.getElementById("noLoseStreak").textContent = noLS;
+
+    const levels = document.querySelectorAll(".level");
+    levels.forEach(l => l.style.background = "#1a1a1a");
+    let color = played.length >= 13 ? "#00ff00" : (played.length >= 8 ? "#ffff00" : "#ff0000");
+    for(let i=0; i < Math.min(played.length, 15); i++) levels[i].style.background = color;
+    if(played.length > 15) for(let i=0; i < (played.length - 15); i++) levels[i].style.background = "#ff00ff";
+
+    document.querySelectorAll(".cell").forEach(c => {
+        const val = results[c.dataset.index];
+        c.textContent = val || "";
+        c.setAttribute('data-val', val || "");
+    });
+}
+
+onSnapshot(doc(db, "wskaznik", "global_state"), (snapshot) => {
+    if (snapshot.exists()) {
+        results = snapshot.data().results;
+        render();
+    }
+});
+
+onAuthStateChanged(auth, user => {
+    currentUser = user;
+    if (user && user.email === adminEmail) {
+        resetBtn.style.display = "block";
+    } else {
+        resetBtn.style.display = "none";
+    }
+});
+// Ten kod wklej na samym dole wewnątrz <script type="module">
+const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+buildMeter();
+buildTable();
+render();
+</script>
+</body>
+</html>

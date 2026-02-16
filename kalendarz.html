@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kalendarz Postteam</title>
+
+    <link rel="stylesheet" href="styl.css">
+
+    <style>
+
+        /* Stylistyka zgodna z Twoim obrazkiem i resztą strony */
+
+        body { background-color: #000; color: #fff; }
+
+        
+
+        .calendar-grid {
+
+    display: grid;
+
+    /* Wymuszamy dokładnie 3 kolumny o równej szerokości */
+
+    grid-template-columns: repeat(3, 1fr); 
+
+    gap: 20px;
+
+    padding: 20px;
+
+    /* Opcjonalnie: ograniczenie szerokości, żeby kalendarz nie był zbyt rozciągnięty */
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+}
+
+
+
+/* Poprawka dla telefonów: na małych ekranach lepiej wrócić do 1 kolumny */
+
+@media (max-width: 768px) {
+
+    .calendar-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+
+        .month-container {
+
+            background: #111;
+
+            border: 1px solid #333;
+
+            border-radius: 4px;
+
+            overflow: hidden;
+
+        }
+
+
+
+        .month-title {
+
+            background: #ff0000;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 8px;
+
+            font-weight: bold;
+
+            text-transform: uppercase;
+
+        }
+
+
+
+        .days-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(7, 1fr);
+
+            padding: 10px;
+
+            gap: 2px;
+
+        }
+
+
+
+        .day {
+
+            aspect-ratio: 1;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: #1a1a1a;
+
+            font-size: 13px;
+
+            cursor: pointer;
+
+            border: 1px solid transparent;
+
+            position: relative;
+
+        }
+
+
+
+        .day:hover { background: #252525; }
+
+
+
+        /* Dzień dzisiejszy - żółty jak na obrazku */
+
+        .day.today {
+
+            background: #ffff00 !important; 
+
+            color: #000;
+
+            font-weight: bold;
+
+        }
+
+
+
+        /* Ramki dla notatek */
+
+        .day.has-note { border: 1px solid #ff0000; }
+
+        .day.note-purple { border: 1px solid #ff00ff; }
+
+        .day.note-green { border: 1px solid #00ff00; }
+
+
+
+        /* 1. Upewniamy się, że miesiąc jest punktem odniesienia */
+
+.month-container {
+
+    position: relative;
+
+    overflow: visible !important;
+
+}
+
+
+
+/* 2. Główny styl dymka notatki */
+
+.day:hover[data-note]::after {
+
+    content: attr(data-note);
+
+    position: absolute;
+
+    bottom: 110%; /* Pojawia się nad dniem */
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    
+
+    /* Wygląd */
+
+    background: #ff0000;
+
+    color: #fff;
+
+    padding: 10px;
+
+    font-size: 16px;
+
+    border-radius: 4px;
+
+    z-index: 9999;
+
+    
+
+    /* Blokowanie uciekania tekstu */
+
+    width: 130px;           /* Stała szerokość */
+
+    white-space: normal;    /* Pozwala zawijać tekst do nowej linii */
+
+    text-align: center;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+
+    pointer-events: none;
+
+}
+
+
+
+/* 3. Naprawa dla lewej strony (np. 3 stycznia) */
+
+/* Jeśli to 1 lub 2 kolumna w tygodniu, przesuń dymek w prawo */
+
+.days-grid .day:nth-child(7n+1):hover[data-note]::after,
+
+.days-grid .day:nth-child(7n+2):hover[data-note]::after {
+
+    left: 0;
+
+    transform: translateX(0);
+
+}
+
+
+
+/* 4. Naprawa dla prawej strony (koniec tygodnia) */
+
+/* Jeśli to 6 lub 7 kolumna, przesuń dymek w lewo */
+
+.days-grid .day:nth-child(7n):hover[data-note]::after,
+
+.days-grid .day:nth-child(7n-1):hover[data-note]::after {
+
+    left: auto;
+
+    right: 0;
+
+    transform: translateX(0);
+
+}
+
+
+
+        /* Modal (Okno edycji) */
+
+        .modal {
+
+            display: none;
+
+            position: fixed;
+
+            top: 0; left: 0; width: 100%; height: 100%;
+
+            background: rgba(0,0,0,0.9);
+
+            z-index: 2000;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+        .modal-content {
+
+            background: #111;
+
+            padding: 25px;
+
+            border: 2px solid #ff0000;
+
+            width: 90%;
+
+            max-width: 400px;
+
+            text-align: center;
+
+        }
+
+        textarea {
+
+            width: 100%; height: 100px;
+
+            background: #222; color: #fff;
+
+            border: 1px solid #444; padding: 10px;
+
+            margin-top: 10px;
+
+        }
+
+        .modal-buttons { margin-top: 15px; }
+
+        .modal-buttons button { padding: 10px; margin: 5px; cursor: pointer; }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+
+<header>KALENDARZ POSTTEAM 📅</header>
+
+
+
+<main>
+
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+
+
+    <div id="noteModal" class="modal">
+
+        <div class="modal-content">
+
+            <h3 id="modalDateTitle">Dzień: </h3>
+
+            <select id="noteType" style="width:100%; padding:10px; background:#222; color:#fff;">
+
+                <option value="red">Czerwona (Mecz)</option>
+
+                <option value="purple">Fioletowa (Urodziny)</option>
+
+                <option value="green">Zielona (Inne)</option>
+
+            </select>
+
+            <textarea id="noteText"></textarea>
+
+            <div class="modal-buttons">
+
+                <button id="saveNote" style="background:red; color:white;">Zapisz</button>
+
+                <button id="deleteNote">Usuń</button>
+
+                <button id="closeModal">Zamknij</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    import { getFirestore, doc, setDoc, onSnapshot, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+
+
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+
+        authDomain: "postteam-bc270.firebaseapp.com",
+
+        projectId: "postteam-bc270",
+
+        storageBucket: "postteam-bc270.firebasestorage.app",
+
+        messagingSenderId: "119497986039",
+
+        appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+
+    };
+
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const db = getFirestore(app);
+
+    const auth = getAuth(app);
+
+
+
+    const monthsNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+
+    const year = 2026;
+
+    let selectedDayId = null;
+
+    let currentUser = null;
+
+
+
+    function initCalendar() {
+
+        const grid = document.getElementById('calendarGrid');
+
+        grid.innerHTML = "";
+
+        const today = new Date();
+
+        
+
+        monthsNames.forEach((name, mIndex) => {
+
+            const monthDiv = document.createElement('div');
+
+            monthDiv.className = 'month-container';
+
+            monthDiv.innerHTML = `<div class="month-title">${name}</div>`;
+
+            
+
+            const daysDiv = document.createElement('div');
+
+            daysDiv.className = 'days-grid';
+
+            const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+
+            
+
+            for (let d = 1; d <= daysInMonth; d++) {
+
+                const dayCell = document.createElement('div');
+
+                dayCell.className = 'day';
+
+                dayCell.textContent = d;
+
+                const dayId = `${year}_${mIndex}_${d}`;
+
+                dayCell.id = dayId;
+
+
+
+                // Sprawdzanie czy dzisiaj (5 Luty 2026)
+
+                if(today.getFullYear() === year && today.getMonth() === mIndex && today.getDate() === d) {
+
+                    dayCell.classList.add('today');
+
+                }
+
+
+
+                dayCell.onclick = () => {
+
+                    if (currentUser && currentUser.email === "matka@postteam.pl") {
+
+                        selectedDayId = dayId;
+
+                        document.getElementById('modalDateTitle').textContent = `Dzień: ${d} ${name}`;
+
+                        document.getElementById('noteText').value = dayCell.getAttribute('data-note') || "";
+
+                        document.getElementById('noteModal').style.display = 'flex';
+
+                    }
+
+                };
+
+                daysDiv.appendChild(dayCell);
+
+            }
+
+            monthDiv.appendChild(daysDiv);
+
+            grid.appendChild(monthDiv);
+
+        });
+
+    }
+
+
+
+    onAuthStateChanged(auth, user => { currentUser = user; });
+
+
+
+    onSnapshot(collection(db, "calendarNotes"), (snapshot) => {
+
+        document.querySelectorAll('.day').forEach(d => {
+
+            d.classList.remove('has-note', 'note-purple', 'note-green');
+
+            d.removeAttribute('data-note');
+
+        });
+
+        snapshot.forEach(doc => {
+
+            const data = doc.data();
+
+            const cell = document.getElementById(doc.id);
+
+            if (cell) {
+
+                cell.classList.add('has-note');
+
+                if(data.type === 'purple') cell.classList.add('note-purple');
+
+                if(data.type === 'green') cell.classList.add('note-green');
+
+                cell.setAttribute('data-note', data.text);
+
+            }
+
+        });
+
+    });
+
+
+
+    document.getElementById('saveNote').onclick = async () => {
+
+        const text = document.getElementById('noteText').value;
+
+        const type = document.getElementById('noteType').value;
+
+        if (selectedDayId && text) {
+
+            await setDoc(doc(db, "calendarNotes", selectedDayId), { text, type });
+
+            document.getElementById('noteModal').style.display = 'none';
+
+        }
+
+    };
+
+
+
+    document.getElementById('deleteNote').onclick = async () => {
+
+        if (selectedDayId) {
+
+            await deleteDoc(doc(db, "calendarNotes", selectedDayId));
+
+            document.getElementById('noteModal').style.display = 'none';
+
+        }
+
+    };
+
+
+
+    document.getElementById('closeModal').onclick = () => {
+
+        document.getElementById('noteModal').style.display = 'none';
+
+    };
+
+
+
+    // Wywołanie startowe
+
+    initCalendar();
+
+    const initHamburger = () => {
+
+    const hamburger = document.getElementById('hamburger');
+
+    const navLinks = document.getElementById('navLinks');
+
+
+
+    if (hamburger && navLinks) {
+
+        hamburger.onclick = () => {
+
+            navLinks.classList.toggle('active');
+
+            
+
+            // Animacja kresek w "X"
+
+            const spans = hamburger.querySelectorAll('span');
+
+            if (navLinks.classList.contains('active')) {
+
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+
+                spans[1].style.opacity = '0';
+
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+
+            } else {
+
+                spans[0].style.transform = 'none';
+
+                spans[1].style.opacity = '1';
+
+                spans[2].style.transform = 'none';
+
+            }
+
+        };
+
+    }
+
+};
+
+
+
+// Uruchom funkcję po załadowaniu strony
+
+initHamburger();
+
+</script>
+
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+    
+</footer>
+
+</body>
+
+</html>

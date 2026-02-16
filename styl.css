@@ -1,0 +1,975 @@
+/* =========================================
+   STYLE GLOBALNE I TŁO
+   ========================================= */
+:root {
+    --cell-size: 40px;
+    --gap-size: 4px;
+    --main-red: #c40000;
+    --total-height: calc(15 * var(--cell-size) + 14 * var(--gap-size));
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: black;
+    color: white;
+    /*overflow-x: hidden;*/
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--main-red) 0%, #000 60%);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    z-index: -1;
+}
+
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Centruje dzieci w poziomie */
+    justify-content: flex-start; /* Zaczyna od góry */
+    width: 100%;
+    text-align: center;
+}
+@media (max-width: 768px) {
+    /* Blokujemy przesuwanie całego ekranu na boki */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+
+    /* Upewniamy się, że główny kontener nie wystaje */
+    .page-wrapper, main {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+
+    /* Tylko ten jeden element MA PRAWO się przesuwać */
+    .table-responsive {
+        width: 100vw !important;
+        overflow-x: auto !important; /* Pozwala na ruch tabeli wewnątrz */
+        display: block !important;
+        margin-left: 0 !important;
+        /* Zapobiega rozpychaniu całej strony przez szeroką tabelę */
+        max-width: 100% !important; 
+    }
+}
+@media (max-width: 768px) {
+    /* Musimy poluzować główne kontenery, inaczej sticky nie zadziała */
+    .page-wrapper, main {
+        display: block !important; /* Zmiana z flex na block jest kluczowa dla sticky! */
+        overflow: visible !important;
+    }
+
+    .table-responsive {
+        width: 100vw !important;
+        max-width: 100% !important;
+        overflow-x: auto !important; /* Okno przewijania */
+        overflow-y: visible !important;
+        display: block !important;
+        position: relative !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* TO JEST TWOJA KOTWICA - IMIONA GRACZY */
+    .schedule-table th:first-child, 
+    .schedule-table td.player-name {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        left: 0 !important; /* Przyklej do lewej krawędzi okna przewijania */
+        z-index: 999 !important; /* Musi być na samym wierzchu */
+        background-color: #000000 !important; /* Solidne tło, żeby tabela nie prześwitywała */
+        min-width: 100px !important;
+        width: 100px !important;
+    }
+
+    .schedule-table {
+        min-width: 1100px !important; /* Szerokość całej tabeli */
+        border-collapse: separate !important; /* Sticky NIE DZIAŁA przy border-collapse: collapse */
+        border-spacing: 0 !important;
+    }
+}
+
+/* ============================================================
+   NAWIGACJA - PORZĄDEK I KONTRAST
+   ============================================================ */
+
+/* Główny pasek nawigacji */
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #000; /* Twoje tło nawigacji */
+    padding: 10px 0;
+}
+
+/* Wspólne style dla linków i przycisków menu */
+nav a, 
+.dropbtn {
+    color: white; 
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.3s ease;
+}
+
+/* EFEKT DLA GŁÓWNYCH ELEMENTÓW (index, youtube, przyciski dropdown) */
+/* Tutaj tło się NIE zmienia po najechaniu */
+nav a:hover, 
+.dropdown:hover .dropbtn {
+    color: #ff0000; /* Opcjonalnie: tekst zmienia się na czerwony zamiast tła */
+    background-color: transparent; 
+}
+
+/* KONTENER LISTY ROZWIJANEJ */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #111; /* Ciemne tło listy */
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 1000;
+    top: 100%;
+}
+
+/* Linki wewnątrz rozwijanej listy */
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+/* !!! EFEKT HOVER TYLKO DLA ELEMENTÓW LISTY !!! */
+.dropdown-content a:hover {
+    background-color: #ff0000 !important; /* Czerwone tło */
+    color: #ffffff !important;           /* Biały tekst - teraz widoczny */
+}
+
+/* Pokazywanie listy po najechaniu na kontener */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* ============================================================
+   ZMIENNE I PODSTAWA (KLUCZOWE DLA WYSOKOŚCI)
+   ============================================================ */
+
+:root {
+    --cell-size: 40px;
+    --gap-size: 4px;
+    --sidebar-width: 260px;
+    --total-height: calc(15 * var(--cell-size) + 14 * var(--gap-size));
+}
+/* ============================================================
+   GŁÓWNY KONTENER (Wyrównanie do góry)
+   ============================================================ */
+.wskaznik-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start; /* Wszystkie kolumny startują od tej samej linii góry */
+    gap: 60px;
+    margin: 50px auto;
+    width: 100%;
+}
+
+/* Lewy panel */
+.wsk-sidebar {
+    width: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    margin: 0; /* Usuwamy ewentualne marginesy górne */
+}
+
+/* ============================================================
+   LEGENDA - KOLOROWE BLOKI (NAPRAWIONE)
+   ============================================================ */
+.legend-table {
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0 10px !important; /* Odstępy między blokami */
+    border: none !important;
+    background: transparent !important;
+    margin: 0 0 20px 0; /* Reset marginesu górnego */
+}
+
+.legend-table tr {
+    background: transparent !important;
+}
+
+.legend-table td {
+    padding: 12px !important;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 10px;
+    font-size: 13px;
+    color: rgb(255, 255, 255);
+    text-transform: uppercase;
+    
+}
+.wsk-stats::before {
+    content: "WINRATE";
+    display: block;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: -5px;
+}
+/* POPRAWIONE KOLORY LEGENDY */
+.wsk-red-border    { border: 2px solid #ff0000 !important; background: rgba(255, 0, 0, 0.815) !important; }
+.wsk-yellow-border { border: 2px solid #ffff00 !important; background: rgba(255, 255, 0, 0.671) !important; }
+.wsk-green-border  { border: 2px solid #00ff00 !important; background: rgba(0, 255, 0, 0.514) !important; }
+.wsk-purple-border { border: 2px solid #ff00ff !important; background: rgba(255, 0, 255, 0.623) !important; }
+
+/* ============================================================
+   LICZNIKI Z P R
+   ============================================================ */
+.wsk-counters-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.wsk-counters {
+    display: flex;
+    gap: 15px;
+}
+
+.counter-item { 
+    text-align: center; 
+    font-weight: bold; 
+    font-size: 14px; 
+    color: #fff3f3; 
+}
+
+.count-box {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    margin-top: 5px;
+    font-size: 20px;
+    border-radius: 6px;
+}
+
+/* ============================================================
+   STATYSTYKI (WINRATE)
+   ============================================================ */
+.wsk-stats {
+    width: 100%;
+    padding: 20px;
+    background: rgba(15, 15, 15, 0.9);
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-sizing: border-box;
+}
+
+.winrate-main {
+    display: block;
+    font-size: 42px;
+    font-weight: 900;
+    color: #1aff00;
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #222;
+    padding-bottom: 10px;
+}
+.winrate-animate {
+    transform: scale(1.1);
+    text-shadow: 0 0 25px rgba(26, 255, 0, 0.8) !important;
+    transition: all 0.2s ease;
+}
+
+.stat-line { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; color: #ddd; }
+.stat-value { font-weight: bold; color: #fff; }
+.stat-record { font-size: 10px; color: #555; text-align: right; text-transform: uppercase; margin-bottom: 12px; }
+
+/* ============================================================
+   ŚRODEK - WSKAŹNIK (METER)
+   ============================================================ */
+.meter {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--gap-size);
+    min-height: var(--total-height);
+    align-items: center; /* Centrowanie wąskiej góry na środku szerokiego dołu */
+    margin: 0; /* Reset marginesu dla równego startu */
+}
+
+.level {
+    height: var(--cell-size);
+    width: 80px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+}
+
+
+.level.wide {
+    width: 240px;
+}
+
+/* --- HAMBURGER LOGIC --- */
+.hamburger {
+    display: none; /* Ukryty na komputerze */
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    padding: 10px;
+    z-index: 1001;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--main-red, #ff0000);
+    transition: 0.3s;
+}
+
+/* --- RWD (TELEFON) --- */
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex; /* Pokazujemy na telefonie */
+    }
+    .hamburger {
+    z-index: 1001;
+}
+
+.nav-links {
+    z-index: 1000;
+}
+
+    .nav-links {
+        display: none; 
+        flex-direction: column;
+        position: absolute;
+        top: 60px; /* Wysokość musi pasować do Twojego paska nawigacji */
+        left: 0;
+        width: 100%;
+        background-color: #0a0a0a;
+        z-index: 1000;
+        border-bottom: 2px solid #ff0000;
+    }
+
+    /* Ta klasa jest dodawana przez JS i pokazuje menu */
+    .nav-links.active {
+        display: flex !important;
+    }
+
+    .nav-links.active {
+        display: flex; /* Pokazujemy po kliknięciu */
+    }
+
+    .nav-links a, .dropdown {
+        margin: 10px 0;
+    }
+
+    .dropdown-content {
+        position: static;
+        background: #1a1a1a;
+    }
+
+    /* ============================================================
+   POPRAWKI MOBILNE DLA WSKAŹNIKA (DODAJ NA KOŃCU PLIKU)
+   ============================================================ */
+
+
+
+@media (max-width: 768px) {
+    /* Wymuszamy, aby środek zachował swoją szerokość i nie zgniatał się */
+    .mobile-scroll-wrapper {
+        display: block !important;
+        width: 100vw !important;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        /* KLUCZOWE DLA TELEFONU: */
+        -webkit-overflow-scrolling: touch; /* Płynny scroll na iOS */
+        touch-action: pan-x; /* Pozwala tylko na przewijanie poziome, blokuje pionowe drgania */
+    }
+
+    .wskaznik-container {
+        /* Musisz wymusić szerokość, która fizycznie nie mieści się na ekranie */
+        display: flex !important;
+        flex-direction: row !important;
+        min-width: 900px !important; /* Bez tego telefon "ściśnie" zawartość i nie będzie czego przewijać */
+        width: max-content !important;
+    }
+
+    /* Opcjonalnie: lekko zmniejszamy całość, żeby więcej było widać na raz */
+    .wskaznik-container {
+        transform: scale(0.9);
+        transform-origin: left top;
+    }
+}
+
+
+    /* --- RESPONSYWNOŚĆ GRAFIKU --- */
+
+/* 1. Kontener tabeli - pozwala przesuwać grafik na boki na telefonie */
+.table-responsive {
+    width: 100%;
+    overflow-x: visible;
+    -webkit-overflow-scrolling: touch; /* Płynne przewijanie na iPhone */
+    margin: 20px 0;
+    background: #000;
+}
+
+/* 2. Legenda i Logowanie - układ pionowy na telefonie */
+@media (max-width: 768px) {
+    /* 1. Odblokowujemy kontenery nadrzędne */
+    .page-wrapper, main {
+        overflow: visible !important; /* KLUCZ: Sticky nie działa wewnątrz overflow: hidden */
+        display: block !important;
+    }
+
+    /* 2. Okno przewijania */
+    .table-responsive {
+        width: 100vw !important;
+        overflow-x: auto !important; 
+        display: block !important;
+        position: relative !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 3. Sama tabela - MUSI mieć border-collapse: separate */
+    .schedule-table {
+        min-width: 1100px !important;
+        border-collapse: separate !important; 
+        border-spacing: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    /* 4. PRZYKLEJENIE GRACZA */
+    .schedule-table th:first-child, 
+    .schedule-table td.player-name {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        left: 0 !important;           /* Przykleja do lewej krawędzi .table-responsive */
+        z-index: 999 !important;      /* Musi być nad innymi komórkami */
+        background-color: #000 !important; /* Czarne tło, by dni nie prześwitywały */
+        min-width: 100px !important;
+        width: 100px !important;
+        border-right: 1px solid #444 !important; /* Linia oddzielająca gracza od reszty */
+    }
+}
+}
+@media (max-width: 768px) {
+    /* 1. Odblokowanie przewijania całej strony w dół */
+    html, body {
+        overflow-x: hidden !important; /* Blokujemy wypadanie strony na boki */
+        overflow-y: auto !important;   /* Wymuszamy scroll w dół */
+        height: auto !important;       /* Pozwalamy stronie rosnąć w dół */
+        position: relative !important;
+        touch-action: auto !important; /* Przywraca standardowe gesty dla body */
+    }
+
+    /* 2. Naprawa kontenera ze wskaźnikiem */
+    .mobile-scroll-wrapper {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important; /* Kontener wskaźnika nie ma scrolla góra-dół */
+        
+        /* KLUCZOWA ZMIANA: pan-y pozwala na scrollowanie strony w dół, 
+           nawet gdy palec zacznie ruch na wskaźniku */
+        touch-action: pan-x pan-y !important; 
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 20px; /* Miejsce na systemowy pasek przewijania */
+    }
+
+    .wskaznik-container {
+        display: flex !important;
+        flex-direction: row !important;
+        min-width: 950px !important; /* Twoja szerokość wskaźnika */
+        width: max-content !important;
+        /* Usuń transform: scale, jeśli psuje przewijanie */
+        transform: none !important; 
+    }
+}
+/* ============================================================
+   KALENDARZ
+   ============================================================ */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.month-container {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.month-title {
+    background: var(--main-red, #ff0000);
+    color: white;
+    text-align: center;
+    padding: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #222;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.day:hover { background: #333; }
+
+/* Dzień dzisiejszy */
+.day.today {
+    border: 2px solid #55ff55 !important;
+    color: #55ff55;
+    font-weight: bold;
+}
+
+/* Dzień z notatką (czerwona ramka jak na Twoim screenie) */
+.day.has-note {
+    border: 1px solid #ff0000;
+}
+
+/* Tooltip (notatka po najechaniu) */
+.day::after {
+    content: attr(data-note);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff0000;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    display: none;
+    z-index: 10;
+}
+
+.day:hover::after {
+    display: block;
+}
+
+/* ============================================================
+   PRAWA STRONA - TABELA WYNIKÓW
+   ============================================================ */
+.results-table {
+    display: grid;
+    grid-template-columns: repeat(2, var(--cell-size));
+    gap: var(--gap-size);
+    margin: 0; /* Reset marginesu dla równego startu */
+}
+
+.cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border: 1px solid #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    background: #0a0a0a;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Numeracja obok kratek */
+.cell::before {
+    content: attr(data-num);
+    position: absolute;
+    font-size: 10px;
+    color: #555;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.results-table div:nth-child(odd).cell::before { left: -32px; width: 25px; text-align: right; }
+.results-table div:nth-child(even).cell::before { right: -32px; width: 25px; text-align: left; }
+
+/* Kolory liter w kratkach */
+.cell[data-val="Z"] { color: #00ff00; text-shadow: 0 0 8px #00ff00; }
+.cell[data-val="P"] { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
+.cell[data-val="R"] { color: #ffff00; text-shadow: 0 0 8px #ffff00; }
+/* =========================================
+   STYLE POZOSTAŁYCH ELEMENTÓW (TEAM, GRAFIK)
+   ========================================= */
+.team-section { margin-top: 60px; text-align: center; }
+.team-title {
+    background: transparent;
+    
+    padding: 10px;
+    margin: 40px 0 20px;
+    font-size: 24px;
+}
+.team-title.reserve {
+    background: transparent;
+    color: #ff2a2a;
+    
+}
+
+.team-grid {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+
+.player-card img {
+    width: 140px;
+    filter: drop-shadow(0 0 8px rgba(255,0,0,0.6));
+}
+.player-card { transition: transform .3s; }
+.player-card:hover { transform: scale(1.08); }
+
+/* GRAFIK / TABELA OGÓLNA */
+header {
+    text-align: center;
+    padding: 30px 10px 15px; /* Delikatnie zwiększony padding dolny */
+    color: var(--main-red);
+    font-size: 36px;         /* Zwiększono z 28px na 36px */
+    letter-spacing: 5px;    /* Zwiększono rozstaw liter dla lepszego efektu */
+    font-weight: 900;       /* Mocne pogrubienie */
+    text-transform: uppercase;
+    
+    /* Efekt cienia i poświaty */
+    text-shadow: 
+        2px 2px 4px rgba(0, 0, 0, 0.5),     /* Ciemny cień dla czytelności */
+        0 0 10px rgba(255, 0, 0, 0.4),      /* Lekka czerwona poświata */
+        0 0 20px rgba(255, 0, 0, 0.2);      /* Szeroki glow */
+}
+
+table {
+    border-collapse: separate;
+    margin: 20px auto 60px;
+    background: rgba(0,0,0,0.85);
+}
+
+th, td {
+    border: 1px solid #222;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    font-size: 17px;
+}
+.today-header {
+    background: #c40000;
+    color: white;
+    box-shadow: 0 0 10px #ff0000;
+    font-weight: bold;
+}
+
+/* Klasy kolorów dla GRAFIKU (nie zmieniać, bo używane w innych tabelach) */
+td.red { background: rgb(131, 0, 0); }
+td.green { background: rgb(0, 187, 0); }
+td.yellow { background: #eeff00; color: black; }
+
+/* =========================================
+   STOPKA I POZOSTAŁE
+   ========================================= */
+.footer {
+    background: #0b0b0b;
+    border-top: 2px solid var(--main-red);
+    margin-top: 80px;
+    padding-top: 40px;
+    color: #aaa;
+}
+
+.footer-content {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px 30px;
+    flex-wrap: wrap;
+}
+
+.footer-logo h2 { color: #ff2a2a; letter-spacing: 2px; }
+
+.footer-socials img { width: 36px; height: 36px; }
+
+/* Usuwanie niebieskich kropel/linii spod ikon */
+.footer-socials a {
+    text-decoration: none !important; /* Usunięcie podkreślenia */
+    outline: none;
+    display: flex;
+    align-items: center; /* Wyrównanie w pionie wewnątrz linku */
+}
+
+/* Wyrównanie ikon w rzędzie */
+.footer-socials {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* To sprawia, że ikony są w jednej linii w poziomie */
+    gap: 25px; /* Odstęp między ikonami */
+}
+
+/* Ustawienie stałej wielkości ikon */
+.footer-socials img {
+    height: 30px; /* Stała wysokość dla wszystkich ikon */
+    width: auto;  /* Szerokość dopasuje się proporcjonalnie */
+    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.3)); /* Opcjonalny czerwony blask */
+    transition: transform 0.3s ease;
+}
+
+.footer-socials img:hover {
+    transform: scale(1.1); /* Delikatne powiększenie po najechaniu */
+}
+
+
+.main-logo {
+    display: block;
+    margin: 40px auto 20px;
+    width: 620px;
+    max-width: 70%;
+    filter: drop-shadow(0 0 14px rgba(255,0,0,0.5));
+}
+.login-box {
+    text-align: center;
+    margin: 20px 0;
+}
+.login-box input {
+    padding: 8px;
+    margin: 5px;
+    border: none;
+}
+.login-box button {
+    padding: 8px 15px;
+    background: #c40000;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.login-box button:hover { background: #ff1a1a; }
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 30px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    max-width: fit-content;
+}
+.legend span {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.legend .box {
+    width: 24px;
+    height: 24px;
+    
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+.red { background: rgb(131, 0, 0); }
+.green { background: rgb(0, 187, 0); }
+.yellow { background: #eeff00; }
+.about {
+    text-align: center;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(0,0,0,0.7);
+    border-left: 4px solid #c40000;
+    border-right: 4px solid #c40000;
+}
+.about h2 {
+    color: #c40000;
+    letter-spacing: 2px;
+}
+
+/* Główne ustawienia tabeli */
+#schedule {
+    border-collapse: separate;
+    border-spacing: 1px; /* To stworzy cienką czarną linię między komórkami */
+    margin: 20px auto;
+    table-layout: fixed;
+    background-color: #000000; /* Czarny kolor "fugi" */
+    border: 1px solid #000000;
+}
+/* Kolor cyfry dla weekendów */
+.weekend-cell {
+    color: #ff0000 !important; /* Czerwony kolor cyfry */
+    font-weight: bold;
+}
+
+/* Jeśli chcesz, żeby nagłówek dnia w weekend też był czerwony */
+th.weekend-cell {
+    color: #ff4444 !important;
+}
+
+/* Komórki dni i graczy */
+.gray { background-color: #1f1e1e !important; } 
+
+/* Zmień domyślny kolor w funkcji tworzącej tabelę (wcześniej był .red) */
+.schedule-table td {
+    background-color: #333; /* Domyślnie szary */
+    /* ... reszta Twoich stylów ... */
+}
+#schedule th {
+    border: 1px solid #000000 !important; /* Wszystkie obramowania na czarno */
+}
+
+/* Specyficzne stylowanie dla imion graczy */
+#schedule td.player-name {
+    width: 105px;
+    background: #000000 !important; /* Pełna czerń */
+    color: #ffffff !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-left: 10px !important;
+    text-align: left;
+    font-size: 12px;
+    /* Kolorowy pasek z lewej zostaje dla identyfikacji */
+    border-left: 4px solid var(--player-color, #ff0000) !important;
+}
+
+/* Nagłówek "Gracz" */
+#schedule th:first-child {
+    background-color: #000000;
+    color: var(--main-red);
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding-left: 15px;
+    border: 1px solid #000000 !important;
+}
+
+/* Nagłówki z numerami dni */
+#schedule th:not(:first-child) {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000 !important;
+}
+
+/* Wyróżnienie dzisiejszej kolumny - zmieniamy na ciemniejszą czerwień, 
+   żeby czarne ramki pasowały */
+.today-column {
+    position: relative;
+    outline: 1px solid #ff0000; /* Zamiast border używamy outline, by nie psuć siatki */
+    z-index: 5;
+}
+.today-header {
+    background-color: #ff0000 !important; /* Intensywna czerwień */
+    color: white !important;
+    font-weight: 900 !important;
+    position: relative;
+    z-index: 10;
+    /* Efekt poświaty zamiast podkreślenia */
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+    animation: pulse-today 2s infinite;
+}
+
+/* Podświetlenie boków kolumny dzisiejszego dnia */
+.today-column {
+    position: relative;
+    border-left: 2px solid rgba(255, 0, 0, 0.6) !important;
+    border-right: 2px solid rgba(255, 0, 0, 0.6) !important;
+}
+
+/* Animacja delikatnego pulsowania ramki i blasku */
+@keyframes pulse-today {
+    0% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.9); }
+    100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+}
+
+/* Opcjonalnie: wzmocnienie koloru czcionki w dzisiejszej kolumnie */
+.today-column {
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 5px solid var(--main-red);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.toast.error { border-left-color: #ff4444; }
+.toast.info { border-left-color: #3498db; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { transform: translateX(100%); opacity: 0; }
+}

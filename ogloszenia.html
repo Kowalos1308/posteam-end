@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ogłoszenia Postteam</title>
+    <link rel="stylesheet" href="styl.css">
+    <style>
+       /* Główne ustawienia układu */
+html, body {
+    height: 100%; /* Wymagane, aby body zajmowało całą wysokość */
+    margin: 0;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column; /* Ustawia elementy jeden pod drugim */
+}
+
+/* Kontener z treścią musi "rosnąć", wypychając stopkę w dół */
+.announcements-container {
+    flex: 1 0 auto; /* To sprawia, że kontener zajmuje całą wolną przestrzeń */
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    width: 100%; /* Zapewnia szerokość na mniejszych ekranach */
+    box-sizing: border-box;
+}
+
+/* Stylizacja samej stopki */
+
+
+        header {
+            text-align: center;
+            padding: 40px 10px 20px;
+            color: #ff0000;
+            font-size: 38px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Formularz dla Matki */
+        #adminPanel {
+            display: none;
+            background: #111;
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        /* Zdjęcie na liście ogłoszeń */
+.announcement-img {
+    max-width: 100%;
+    max-height: 350px;
+    display: block;
+    margin: 15px auto 0;
+    border-radius: 6px;
+    border: 1px solid #333;
+    object-fit: cover;
+    transition: border-color 0.3s;
+}
+
+.announcement-item:hover .announcement-img {
+    border-color: #ff0000;
+}
+
+/* Stylizacja zdjęcia wewnątrz modala (powiększone) */
+.modal-image {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #222;
+}
+
+        #adminPanel input, #adminPanel textarea {
+            width: 100%;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #adminPanel button {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* Lista ogłoszeń */
+        .announcement-item {
+            background: #111;
+            border-left: 5px solid #ff0000;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.2s;
+        }
+
+        .announcement-item:hover { transform: scale(1.01); }
+
+        .announcement-date {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .announcement-title {
+            color: #ff0000;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .announcement-content {
+            line-height: 1.6;
+            color: #ddd;
+            white-space: pre-wrap; /* Zachowuje entery w treści */
+        }
+
+        .delete-btn {
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            padding: 5px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .delete-btn:hover { color: #ff0000; border-color: #ff0000; }
+        /* Skracanie długiego tekstu na liście */
+.announcement-content {
+    line-height: 1.6;
+    color: #ddd;
+    /* Wsparcie dla nowoczesnych przeglądarek */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; 
+    line-clamp: 3; /* Standardowa właściwość (przyszłościowa) */
+    
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    
+    /* Zabezpieczenie dla bardzo starych przeglądarek */
+    max-height: 4.8em; /* 1.6 (line-height) * 3 (linie) */
+}
+
+/* Stan po rozwinięciu lub w modalu - pokazujemy całość */
+.announcement-full-content {
+    display: block !important;
+    white-space: pre-wrap;
+    color: #fff;
+    line-height: 1.8;
+}
+
+/* Styl okna Modal (Powiększone ogłoszenie) */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-inner {
+    background: #111;
+    border: 2px solid #ff0000;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px;
+    position: relative;
+    border-radius: 8px;
+}
+
+.close-modal {
+    position: sticky;
+    top: 0;
+    float: right;
+    color: #ff0000;
+    font-size: 30px;
+    cursor: pointer;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header>OGŁOSZENIA POSTTEAM 📣</header>
+
+<div class="announcements-container">
+    <div id="adminPanel">
+        <h3>Dodaj nowe ogłoszenie:</h3>
+        <input type="text" id="postTitle" placeholder="Tytuł ogłoszenia...">
+        <textarea id="postContent" rows="5" placeholder="Treść ogłoszenia..."></textarea>
+        <input type="text" id="postImage" placeholder="Link do zdjęcia (opcjonalnie)...">
+        <button id="addPostBtn">Opublikuj ogłoszenie</button>
+    </div>
+
+    <div id="postsList">
+        <p style="text-align: center; color: #888;">Ładowanie ogłoszeń...</p>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+        authDomain: "postteam-bc270.firebaseapp.com",
+        projectId: "postteam-bc270",
+        storageBucket: "postteam-bc270.firebasestorage.app",
+        messagingSenderId: "119497986039",
+        appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let isAdmin = false;
+
+    // Sprawdzanie uprawnień (Tylko Matka)
+    onAuthStateChanged(auth, user => {
+        if (user && user.email === "matka@postteam.pl") {
+            isAdmin = true;
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+    });
+
+    // Dodawanie ogłoszenia
+    document.getElementById('addPostBtn').onclick = async () => {
+    const title = document.getElementById('postTitle').value;
+    const content = document.getElementById('postContent').value;
+    const imageUrl = document.getElementById('postImage').value; // Pobranie linku
+    const date = new Date().toLocaleString('pl-PL', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    if (title && content) {
+        await addDoc(collection(db, "announcements"), {
+            title,
+            content,
+            imageUrl: imageUrl || "", // Zapisujemy pusty string jeśli nie ma zdjęcia
+            date,
+            createdAt: Date.now()
+        });
+        // Czyszczenie pól
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postContent').value = '';
+        document.getElementById('postImage').value = '';
+    }
+};
+
+   // Pobieranie ogłoszeń (najnowsze u góry)
+const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+
+onSnapshot(q, (snapshot) => {
+    const list = document.getElementById('postsList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    
+    if (snapshot.empty) {
+        list.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">Brak ogłoszeń.</p>';
+        return;
+    }
+
+    snapshot.forEach(postDoc => {
+        const data = postDoc.data();
+        const id = postDoc.id;
+        
+        // Tworzymy kontener ogłoszenia
+        const div = document.createElement('div');
+        div.className = 'announcement-item';
+        
+        // Funkcja otwierająca modal
+        div.onclick = () => {
+            if (window.openAnnouncement) {
+                window.openAnnouncement(data, id);
+            }
+        };
+        
+        // Obsługa zdjęcia
+        const imgHtml = data.imageUrl ? `<img src="${data.imageUrl}" class="announcement-img" alt="Grafika ogłoszenia">` : "";
+
+        // Wstawiamy treść
+        div.innerHTML = `
+            <div class="announcement-date">${data.date || ''}</div>
+            <div class="announcement-title">${data.title || 'Ogłoszenie'}</div>
+            <div class="announcement-content">${data.content || ''}</div>
+            ${imgHtml}
+            ${isAdmin ? `<button class="delete-btn" id="btn-del-${id}">Usuń</button>` : ''}
+        `;
+        
+        list.appendChild(div);
+
+        // Obsługa przycisku usuwania (oddzielny listener, żeby nie odpalać modala)
+        if (isAdmin) {
+            const delBtn = document.getElementById(`btn-del-${id}`);
+            if (delBtn) {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Zatrzymuje "wybicie" kliknięcia wyżej do kontenera div
+                    window.deletePost(id);
+                });
+            }
+        }
+    });
+}, (error) => {
+    console.error("Błąd Firebase onSnapshot:", error);
+});
+
+    const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+// Otwieranie ogłoszenia
+window.openAnnouncement = (data, id) => {
+    const modal = document.getElementById('announcementModal');
+    const content = document.getElementById('modalContent');
+    if (!modal || !content) return;
+
+    const imgHtml = data.imageUrl ? `<img src="${data.imageUrl}" style="width:100%; border-radius:8px; margin-bottom:20px; border:1px solid #333;">` : "";
+    
+    content.innerHTML = `
+        <div class="announcement-date" style="margin-bottom:10px; color:#888;">${data.date || ''}</div>
+        <h2 style="color:#ff0000; text-transform:uppercase; margin-bottom:20px; font-size:24px;">${data.title || ''}</h2>
+        ${imgHtml}
+        <div class="announcement-full-content" style="white-space: pre-wrap; color:#eee; line-height:1.7;">${data.content || ''}</div>
+    `;
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; 
+};
+
+// Zamykanie ogłoszenia
+window.closeAnnouncement = () => {
+    document.getElementById('announcementModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+};
+
+// Usuwanie ogłoszenia
+window.deletePost = async (id) => {
+    if (confirm("Czy na pewno chcesz usunąć to ogłoszenie?")) {
+        try {
+            await deleteDoc(doc(db, "announcements", id));
+        } catch (err) {
+            console.error("Błąd podczas usuwania:", err);
+        }
+    }
+};
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<div id="announcementModal" class="modal" onclick="closeAnnouncement()">
+    <div class="modal-inner" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="closeAnnouncement()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Amatorska drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+    
+</footer>
+</body>
+</html>

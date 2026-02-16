@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ankiety Postteam</title>
+    <link rel="stylesheet" href="styl.css">
+    <style>
+        html, body {
+    height: 100%; /* Konieczne, aby strona wiedziała, ile to jest 100% wysokości */
+    margin: 0;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column; /* Układa elementy: nav, header, container, footer w pionie */
+}
+
+/* Główny kontener z ankietami */
+.announcements-container {
+    flex: 1 0 auto; /* To sprawia, że ten blok "rośnie" i wypycha stopkę na sam dół */
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+        
+        header {
+            text-align: center; padding: 40px 10px 20px; color: #ff0000;
+            font-size: 38px; font-weight: 900; text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        #adminPanel {
+            display: none; background: #111; padding: 20px;
+            border: 2px solid #ff0000; border-radius: 8px; margin-bottom: 40px;
+        }
+        #adminPanel input {
+            width: 100%; background: #222; border: 1px solid #444;
+            color: #fff; padding: 12px; margin: 10px 0; border-radius: 4px; box-sizing: border-box;
+        }
+        #adminPanel button {
+            background: #ff0000; color: #fff; border: none; padding: 12px 25px;
+            font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%;
+        }
+
+        .poll-item {
+            background: #111; border-left: 5px solid #ff0000;
+            padding: 25px; margin-bottom: 30px; border-radius: 0 8px 8px 0;
+        }
+        .poll-title { color: #ff0000; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .poll-question { font-size: 18px; color: #eee; margin: 10px 0 20px; }
+
+        /* WYKRES PIONOWY - DYNAMIKA */
+        .chart-container {
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: space-around;
+            height: 200px; /* Stała wysokość kontenera */
+            margin: 40px 0 20px; 
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        .chart-bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
+        
+        .bar {
+            width: 45px; 
+            background: #ff0000; 
+            position: relative; 
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+            transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animacja wzrostu */
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+        
+        .bar-value { 
+            position: absolute; 
+            top: -25px; 
+            width: 100%; 
+            text-align: center; 
+            font-weight: bold; 
+            color: #fff; 
+        }
+        .bar-label { margin-top: 15px; font-size: 12px; text-align: center; color: #888; font-weight: bold; text-transform: uppercase; }
+
+        .poll-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+        .vote-btn {
+            background: #222; border: 1px solid #444; color: #fff; padding: 12px;
+            border-radius: 4px; cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        .vote-btn:hover:not(:disabled) { background: #ff0000; border-color: #ff0000; }
+        .vote-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .voted-marker { color: #2ecc71; font-weight: bold; text-align: center; margin-top: 15px; }
+        .unvote-btn {
+            background: none; border: 1px solid #444; color: #888; padding: 6px 12px;
+            font-size: 11px; cursor: pointer; margin-top: 10px; border-radius: 4px; display: block; margin: 10px auto;
+        }
+        .unvote-btn:hover { color: #ff0000; border-color: #ff0000; }
+        
+        .status-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 11px; margin-bottom: 10px; font-weight: bold; }
+        .status-active { background: #008000; color: #fff; }
+        .status-finished { background: #ffaa00; color: #000; }
+    </style>
+</head>
+<body>
+
+ <nav>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <div class="dropdown">
+            <button class="dropbtn">STRONA GŁÓWNA ▾</button>
+            <div class="dropdown-content">
+                <a href="index.html">STRONA GŁÓWNA</a>
+                <a href="ogloszenia.html">OGŁOSZENIA</a>
+                <a href="ankiety.html">ANKIETY</a>
+            </div>
+        </div>
+        <a href="taktyki.html">TAKTYKI</a>
+        <a href="youtube.html">YOUTUBE</a>
+        <div class="dropdown">
+            <button class="dropbtn">STATYSTYKI ▾</button>
+            <div class="dropdown-content">
+                <a href="gracze.html">STATYSTYKI</a>
+                <a href="zespol.html">ZESPÓŁ</a>
+                <a href="rekordy.html">REKORDY</a>
+                <a href="konkursy.html">KONKURSY</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">GRAFIK ▾</button>
+            <div class="dropdown-content">
+                <a href="grafik.html">GRAFIK POSTTEAM</a>
+                <a href="wskaznik.html">WSKAŹNIK KUTASA</a>
+                <a href="kalendarz.html">KALENDARZ POSTTEAM</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header>ANKIETY POSTTEAM 📊</header>
+
+<div class="announcements-container">
+    <div id="adminPanel">
+        <h3>Dodaj ankietę:</h3>
+        <input type="text" id="pollTitle" placeholder="Tytuł...">
+        <input type="text" id="pollQuestion" placeholder="Pytanie...">
+        <input type="text" id="pollOptions" placeholder="Opcje (oddziel przecinkiem: Tak, Nie, Pomidor)">
+        <button id="addPollBtn">Opublikuj</button>
+    </div>
+    <div id="pollsList"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBP3WyyrUkQszrYW4_t65Rc5n9nvDe4YHc",
+        authDomain: "postteam-bc270.firebaseapp.com",
+        projectId: "postteam-bc270",
+        storageBucket: "postteam-bc270.firebasestorage.app",
+        messagingSenderId: "119497986039",
+        appId: "1:119497986039:web:f5f757102f79e81ef6a8f2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let isAdmin = false;
+    let userEmail = null;
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            userEmail = user.email;
+            isAdmin = (user.email === "matka@postteam.pl");
+            if (isAdmin) document.getElementById('adminPanel').style.display = 'block';
+        }
+        loadPolls();
+    });
+
+    function loadPolls() {
+    const q = query(collection(db, "polls"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+        const list = document.getElementById('pollsList');
+        if (!list) return;
+        list.innerHTML = '';
+        
+        snapshot.forEach(pollDoc => {
+            const data = pollDoc.data();
+            const id = pollDoc.id;
+            const safeEmail = userEmail ? userEmail.replace(/\./g, '_') : null;
+            const userChoice = (data.userChoices && safeEmail) ? data.userChoices[safeEmail] : null;
+            const isFinished = data.status === "finished";
+
+            // --- KLUCZOWA NAPRAWA ---
+            // Używamy TYLKO tablicy order. Jeśli ankieta jest stara i jej nie ma, tworzymy ją z kluczy (raz).
+            const orderedOptions = data.order || Object.keys(data.votes);
+            
+            // Sumę głosów liczymy pętlą po orderedOptions, żeby uniknąć Object.values()
+            let totalVotes = 0;
+            orderedOptions.forEach(opt => {
+                totalVotes += (data.votes[opt] || 0);
+            });
+            
+            // 1. GENEROWANIE WYKRESU (Słupki) - Sztywna pętla po orderedOptions
+            let chartHtml = '<div class="chart-container">';
+            orderedOptions.forEach(option => {
+                const count = data.votes[option] || 0;
+                // Obliczamy % wysokości (max 100% kontenera)
+                const heightPercent = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
+                
+                chartHtml += `
+                    <div class="chart-bar-wrapper">
+                        <div class="bar" style="height: ${heightPercent}%">
+                            <span class="bar-value">${count}</span>
+                        </div>
+                        <span class="bar-label">${option}</span>
+                    </div>`;
+            });
+            chartHtml += '</div>';
+
+            // 2. GENEROWANIE PRZYCISKÓW - Ta sama sztywna pętla
+            let buttonsHtml = '<div class="poll-options">';
+            orderedOptions.forEach(option => {
+                buttonsHtml += `
+                    <button class="vote-btn" ${!userEmail || userChoice || isFinished ? 'disabled' : ''} 
+                        onclick="window.vote('${id}', '${option}')">${option}</button>`;
+            });
+            buttonsHtml += '</div>';
+
+            const div = document.createElement('div');
+            div.className = 'poll-item';
+            div.innerHTML = `
+                <span class="status-tag ${isFinished ? 'status-finished' : 'status-active'}">${isFinished ? 'ZAKOŃCZONA' : 'AKTYWNA'}</span>
+                <div class="poll-title">${data.title}</div>
+                <div class="poll-question">${data.question}</div>
+                ${chartHtml}
+                ${isFinished ? '' : (!userEmail ? '<p style="text-align:center; color:#888;">Zaloguj się, aby zagłosować</p>' : buttonsHtml)}
+                ${userChoice && !isFinished ? `
+                    <div class="voted-marker">✓ Twój głos: ${userChoice}</div>
+                    <button class="unvote-btn" onclick="window.unvote('${id}', '${userChoice}')">Cofnij głos / Zmień</button>
+                ` : ''}
+                ${isAdmin ? `
+                    <div style="margin-top:20px; display:flex; gap:10px;">
+                        ${!isFinished ? `<button class="vote-btn" style="background:#ffaa00; color:#000" onclick="window.finishPoll('${id}')">Zakończ</button>` : ''}
+                        <button class="vote-btn" style="background:#333" onclick="window.deletePoll('${id}')">Usuń</button>
+                    </div>
+                ` : ''}
+            `;
+            list.appendChild(div);
+        });
+    });
+}
+
+    window.vote = async (pollId, option) => {
+        if (!userEmail) return;
+        const safeEmail = userEmail.replace(/\./g, '_');
+        await updateDoc(doc(db, "polls", pollId), {
+            [`votes.${option}`]: increment(1),
+            votedUsers: arrayUnion(userEmail),
+            [`userChoices.${safeEmail}`]: option
+        });
+    };
+
+    window.unvote = async (pollId, previousOption) => {
+        if (!userEmail || !confirm("Cofnąć głos?")) return;
+        const safeEmail = userEmail.replace(/\./g, '_');
+        await updateDoc(doc(db, "polls", pollId), {
+            [`votes.${previousOption}`]: increment(-1),
+            votedUsers: arrayRemove(userEmail),
+            [`userChoices.${safeEmail}`]: deleteField()
+        });
+    };
+
+    window.finishPoll = async (id) => { if(confirm("Zakończyć ankietę?")) await updateDoc(doc(db, "polls", id), { status: "finished" }); };
+    window.deletePoll = async (id) => { if(confirm("Usunąć ankietę?")) await deleteDoc(doc(db, "polls", id)); };
+
+    document.getElementById('addPollBtn').onclick = async () => {
+        const title = document.getElementById('pollTitle').value;
+        const question = document.getElementById('pollQuestion').value;
+        const opts = document.getElementById('pollOptions').value.split(',').map(o => o.trim()).filter(o => o);
+        if (title && question && opts.length > 1) {
+            const v = {}; opts.forEach(o => v[o] = 0);
+            await addDoc(collection(db, "polls"), { 
+                title, question, votes: v, order: opts, 
+                votedUsers: [], userChoices: {}, createdAt: Date.now(), status: "active" 
+            });
+            document.getElementById('pollTitle').value = ''; 
+            document.getElementById('pollQuestion').value = ''; 
+            document.getElementById('pollOptions').value = '';
+        }
+    };
+    const initHamburger = () => {
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    if (hamburger && navLinks) {
+        hamburger.onclick = () => {
+            navLinks.classList.toggle('active');
+            
+            // Animacja kresek w "X"
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -7px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        };
+    }
+};
+
+// Uruchom funkcję po załadowaniu strony
+initHamburger();
+</script>
+<footer class="footer">
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            <h2>POSTTEAM</h2>
+            <p style="color: #888; font-size: 14px;">Profesjonalna drużyna CS • Office Specialists</p>
+        </div>
+
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@osphalinapostteam" target="_blank">
+                <img src="yt.PNG" alt="YouTube">
+            </a>
+            <a href="https://www.instagram.com/_postteam/" target="_blank">
+                <img src="ig.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@_postteam_" target="_blank">
+                <img src="tt.PNG" alt="TikTok">
+            </a>
+        </div>
+
+    </div>
+    
+</footer>
+</body>
+</html>
