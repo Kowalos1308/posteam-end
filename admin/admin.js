@@ -15,6 +15,15 @@ const logoutButton = document.getElementById('adminLogoutButton');
 
 let isLoggedIn = false;
 
+const LEGACY_STORAGE_KEY = 'postteamAdminLoggedIn';
+const syncLegacyAdminFlag = (loggedIn) => {
+  try {
+    localStorage.setItem(LEGACY_STORAGE_KEY, loggedIn ? 'true' : 'false');
+  } catch (error) {
+    // localStorage can be blocked; ignore
+  }
+};
+
 const setStatus = (message) => {
   if (loginStatus) loginStatus.textContent = message;
 };
@@ -35,6 +44,7 @@ const setLoggedInState = (loggedIn) => {
   isLoggedIn = !!loggedIn;
   if (adminPanel) adminPanel.classList.toggle('active', isLoggedIn);
   if (logoutButton) logoutButton.disabled = !isLoggedIn;
+  syncLegacyAdminFlag(isLoggedIn);
 };
 
 const getJson = async (response) => response.json().catch(() => ({}));
