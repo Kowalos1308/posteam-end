@@ -58,7 +58,10 @@
 <section class="admin-page">
     <header class="admin-hero">
         <h1>Panel administratora</h1>
-        <p>Proste logowanie i import danych statystycznych.</p>
+        <p>Bezpieczny dostęp sesyjny i narzędzia do zarządzania danymi statystyk.</p>
+        <div class="admin-hero-actions">
+            <button type="button" id="adminLogoutButton" class="logout-btn" disabled>Wyloguj</button>
+        </div>
     </header>
 
     <div class="admin-card">
@@ -69,6 +72,7 @@
             <button type="submit">Zaloguj</button>
         </form>
         <div class="status-message" id="loginStatus">Wprowadź dane logowania.</div>
+        <p class="security-note">Hasło nie jest przechowywane w JavaScript ani localStorage — uwierzytelnianie działa po stronie serwera.</p>
     </div>
 
     <div class="admin-panel" id="adminPanel">

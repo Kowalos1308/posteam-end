@@ -33,44 +33,6 @@ window.TaktykiMap = (() => {
       };
     });
 
-    let isFreeDrawingNow = false;
-    mapContainer.addEventListener("pointerdown", (event) => {
-      if (!window.TaktykiUtils.isAdmin() || !window.TaktykiState.isFreeDrawing) return;
-      if (window.TaktykiState.drawMode !== "pen") return;
-      if (event.button !== 0) return;
-      event.preventDefault();
-      const rect = mapContainer.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      isFreeDrawingNow = true;
-      window.TaktykiState.tempStrokePoints = [{ x, y }];
-    });
-
-    mapContainer.addEventListener("pointermove", (event) => {
-      if (!isFreeDrawingNow || !window.TaktykiState.isFreeDrawing) return;
-      if (window.TaktykiState.drawMode !== "pen") return;
-      const rect = mapContainer.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      const points = window.TaktykiState.tempStrokePoints || [];
-      points.push({ x, y });
-      window.TaktykiState.tempStrokePoints = points;
-      renderTempFreeDraw(points, window.TaktykiState.freeDrawColor, window.TaktykiState.freeDrawDashed);
-    });
-
-    const endFreeDraw = async () => {
-      if (!isFreeDrawingNow) return;
-      isFreeDrawingNow = false;
-      const points = [...(window.TaktykiState.tempStrokePoints || [])];
-      window.TaktykiState.tempStrokePoints = [];
-      clearTempFreeDraw();
-      if (points.length >= 2) {
-        await window.TaktykiActions.addFreeDrawStrokeToServer(points, window.TaktykiState.freeDrawColor, window.TaktykiState.freeDrawDashed);
-      }
-    };
-
-    mapContainer.addEventListener("pointerup", endFreeDraw);
-    mapContainer.addEventListener("pointerleave", endFreeDraw);
   };
 
   const shouldDisplayPin = (pin) => {
